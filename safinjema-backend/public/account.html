@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Account | SaFi Njema</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<style>
+  .acct-layout {
+    max-width: 1000px; margin: 0 auto; padding: 40px 20px;
+    display: grid; grid-template-columns: 260px 1fr; gap: 28px; align-items: start;
+  }
+  /* Sidebar */
+  .acct-sidebar {
+    background: #fff; border-radius: 16px; padding: 28px 20px;
+    border: 1px solid #e8ece8; box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    position: sticky; top: 88px;
+  }
+  .acct-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg,#1a6b3c,#2d9e60);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 26px; font-weight: 700; margin: 0 auto 16px;
+  }
+  .acct-sidebar h3 { text-align:center; font-size:16px; margin:0 0 4px; }
+  .acct-sidebar p  { text-align:center; font-size:13px; color:var(--muted,#888); margin:0 0 20px; }
+  .acct-nav { list-style:none; padding:0; margin:0; }
+  .acct-nav li { margin-bottom:4px; }
+  .acct-nav a {
+    display:flex; align-items:center; gap:10px; padding:10px 14px;
+    border-radius:10px; text-decoration:none; font-size:14px; font-weight:500;
+    color:#444; transition:.2s;
+  }
+  .acct-nav a:hover, .acct-nav a.active { background:#f0faf4; color:#1a6b3c; }
+  .acct-nav a i { width:16px; text-align:center; color:#2d9e60; }
+
+  /* Main panels */
+  .acct-panel { display:none; }
+  .acct-panel.active { display:block; }
+  .acct-card {
+    background:#fff; border-radius:16px; padding:28px;
+    border:1px solid #e8ece8; box-shadow:0 2px 12px rgba(0,0,0,.05);
+    margin-bottom:20px;
+  }
+  .acct-card h2 { font-family:var(--fd,'serif'); font-size:1.25rem; margin:0 0 20px; }
+
+  /* Booking cards */
+  .booking-card {
+    border:1px solid #e8ece8; border-radius:12px; padding:18px 20px;
+    margin-bottom:14px; transition:.2s;
+  }
+  .booking-card:hover { border-color:#2d9e60; box-shadow:0 2px 10px rgba(45,158,96,.08); }
+  .booking-card-top {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:12px; flex-wrap:wrap;
+  }
+  .booking-service { font-size:16px; font-weight:600; color:#1a1a1a; }
+  .booking-ref     { font-size:12px; color:#aaa; margin-top:2px; }
+  .booking-meta    { font-size:13px; color:#666; margin-top:10px; display:flex; gap:16px; flex-wrap:wrap; }
+  .booking-meta span i { color:#2d9e60; margin-right:4px; }
+  .status-pill {
+    display:inline-block; padding:4px 14px; border-radius:50px;
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+  }
+  .status-pending    { background:#fff3cd; color:#856404; }
+  .status-confirmed  { background:#d1e7dd; color:#0f5132; }
+  .status-in_progress{ background:#cff4fc; color:#055160; }
+  .status-completed  { background:#d1e7dd; color:#0f5132; }
+  .status-cancelled  { background:#f8d7da; color:#842029; }
+
+  /* Profile form */
+  .profile-form .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .profile-form .form-group { display:flex; flex-direction:column; gap:6px; }
+  .profile-form label { font-size:13px; font-weight:600; color:#555; }
+  .profile-form input {
+    padding:10px 14px; border:1px solid #ddd; border-radius:8px;
+    font-family:inherit; font-size:14px; outline:none; transition:.2s;
+  }
+  .profile-form input:focus { border-color:#2d9e60; }
+  .profile-form .btn-save {
+    background:linear-gradient(135deg,#1a6b3c,#2d9e60); color:#fff;
+    border:none; padding:11px 28px; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:600; cursor:pointer; margin-top:8px; transition:.2s;
+  }
+  .profile-form .btn-save:hover { opacity:.9; }
+
+  /* Empty state */
+  .empty-state { text-align:center; padding:48px 20px; color:#aaa; }
+  .empty-state i { font-size:42px; margin-bottom:14px; display:block; color:#ddd; }
+  .empty-state p { font-size:15px; margin:0 0 20px; }
+
+  /* Stats row */
+  .acct-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
+  .acct-stat {
+    background:#f8faf8; border-radius:12px; padding:16px; text-align:center;
+    border:1px solid #e8ece8;
+  }
+  .acct-stat strong { font-size:24px; font-weight:700; color:#1a6b3c; display:block; }
+  .acct-stat span   { font-size:12px; color:#888; }
+
+  @media(max-width:768px){
+    .acct-layout { grid-template-columns:1fr; }
+    .acct-sidebar { position:static; }
+    .profile-form .form-row { grid-template-columns:1fr; }
+    .acct-stats { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">🌿 Eco-Friendly Cleaning Solutions &nbsp;|&nbsp; <a href="tel:+27713599995">+27 71 359 9995</a></div>
+<nav class="navbar">
+  <div class="logo"><a href="index.html"><img src="image/Safi Njema logo No Background.png" alt="SaFi Njema"></a></div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
+    <li><a href="About.html">About</a></li><li><a href="Galary.html">Gallery</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="login.html" class="nav-auth" id="navLogin">Login</a>
+    <a href="register.html" class="nav-auth reg" id="navRegister">Register</a>
+    <a href="Book.html" class="book-btn"><i class="fa fa-calendar-check"></i> Book Now</a>
+  </div>
+  <button class="hamburger" onclick="toggleMenu()"><i class="fa fa-bars"></i></button>
+</nav>
+
+<div class="page-hero" style="padding:48px 6% 40px;">
+  <div class="badge">My Account</div>
+  <h1 id="heroName">My Account</h1>
+  <p>Manage your bookings and profile</p>
+</div>
+
+<div class="acct-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="acct-sidebar">
+    <div class="acct-avatar" id="avatarInitials">?</div>
+    <h3 id="sidebarName">Loading…</h3>
+    <p  id="sidebarEmail"></p>
+    <ul class="acct-nav">
+      <li><a href="#" class="active" onclick="showPanel('bookings',this)"><i class="fa fa-calendar-check"></i> My Bookings</a></li>
+      <li><a href="#" onclick="showPanel('profile',this)"><i class="fa fa-user"></i> My Profile</a></li>
+      <li><a href="#" onclick="showPanel('security',this)"><i class="fa fa-lock"></i> Security</a></li>
+      <li><a href="Book.html" style="margin-top:8px;background:#f0faf4;color:#1a6b3c;"><i class="fa fa-plus"></i> New Booking</a></li>
+      <li><a href="#" onclick="doLogout()" style="color:#dc3545;"><i class="fa fa-sign-out-alt"></i> Sign Out</a></li>
+    </ul>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div>
+
+    <!-- BOOKINGS PANEL -->
+    <div class="acct-panel active" id="panel-bookings">
+      <div class="acct-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <h2 style="margin:0;">My Bookings</h2>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="bookingFilter" onchange="renderBookings()" style="padding:7px 12px;border:1px solid #ddd;border-radius:8px;font-family:inherit;font-size:13px;outline:none;">
+              <option value="all">All Bookings</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button onclick="loadBookings()" style="background:#f0faf4;border:1px solid #d1e7dd;color:#1a6b3c;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;">
+              <i class="fa fa-sync"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick stats -->
+        <div class="acct-stats" id="bookingStats"></div>
+
+        <!-- Booking list -->
+        <div id="bookingsList">
+          <div style="text-align:center;padding:32px;color:#aaa;"><i class="fa fa-spinner fa-spin"></i> Loading bookings…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE PANEL -->
+    <div class="acct-panel" id="panel-profile">
+      <div class="acct-card">
+        <h2>My Profile</h2>
+        <form class="profile-form" id="profileForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="pName" placeholder="Your full name" required>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" id="pPhone" placeholder="+27 71 000 0000">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:14px;">
+            <label>Email Address</label>
+            <input type="email" id="pEmail" disabled style="background:#f8f8f8;cursor:not-allowed;">
+            <span style="font-size:12px;color:#aaa;">Email cannot be changed. Contact support if needed.</span>
+          </div>
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn-save"><i class="fa fa-save"></i> &nbsp;Save Profile</button>
+          </div>
+          <div id="profileMsg" class="alert" style="margin-top:12px;"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SECURITY PANEL -->
+    <div class="acct-panel" id="panel-security">
+      <div class="acct-card">
+        <h2>Change Password</h2>
+        <form class="profile-form" id="passwordForm">
+          <div class="form-group">
+            <label>Current Password</label>
+            <input type="password" id="cpCurrent" placeholder="Your current password" required>
+          </div>
+          <div class="form-row" style="margin-top:14px;">
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" id="cpNew" placeholder="Min 6 characters" required>
+            </div>
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" id="cpConfirm" placeholder="Repeat new password" required>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <button type="submit" class="btn-save"><i class="fa fa-lock"></i> &nbsp;Update Password</button>
+          </div>
+          <div id="passwordMsg" class="alert" style="margin-top:12px;"></div>
+        </form>
+      </div>
+
+      <div class="acct-card" style="border-color:#f8d7da;">
+        <h2 style="color:#842029;">Danger Zone</h2>
+        <p style="font-size:14px;color:#666;margin-bottom:16px;">Sign out of your account on this device.</p>
+        <button onclick="doLogout()" style="background:#f8d7da;color:#842029;border:1px solid #f0b8be;padding:9px 20px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;">
+          <i class="fa fa-sign-out-alt"></i> &nbsp;Sign Out
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /main content -->
+</div><!-- /layout -->
+
+<footer class="footer" style="margin-top:40px;">
+  <div class="footer-grid">
+    <div class="footer-brand"><img src="image/Safi Njema logo No Background.png" class="footer-logo" alt="SaFi Njema"><p>Eco-friendly professional cleaning for homes, offices and industries across Cape Town.</p><div class="social-icons"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="https://wa.me/27713599995" target="_blank"><i class="fab fa-whatsapp"></i></a></div></div>
+    <div class="footer-col"><h4>Services</h4><ul><li><a href="residential.html">Residential</a></li><li><a href="commercial.html">Commercial</a></li><li><a href="industrial.html">Industrial</a></li><li><a href="events.html">Events</a></li></ul></div>
+    <div class="footer-col"><h4>Quick Links</h4><ul><li><a href="index.html">Home</a></li><li><a href="About.html">About Us</a></li><li><a href="services.html">Services</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><div class="footer-contact"><p><i class="fa fa-phone"></i> +27 71 359 9995</p><p><i class="fa fa-envelope"></i> safinjema@outlook.com</p><p><i class="fa fa-map-marker-alt"></i> Cape Town, South Africa</p></div></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 SaFi Njema Cleaning Services</span><span>Eco-Friendly Cleaning Solutions 🌿</span></div>
+</footer>
+
+<a href="https://wa.me/27713599995" class="wa-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
+<script src="Java.js"></script>
+<script>
+/* ── AUTH GUARD ── */
+if (!Auth.isLoggedIn()) {
+  window.location.href = 'login.html?redirect=account.html';
+}
+
+let allBookings = [];
+
+/* ── INIT ── */
+async function init() {
+  const { ok, data } = await apiFetch('/auth/me');
+  if (!ok) { doLogout(); return; }
+  const user = data.user;
+  Auth.setUser(user);
+
+  // Populate sidebar
+  const initials = user.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('avatarInitials').textContent = initials;
+  document.getElementById('sidebarName').textContent    = user.name;
+  document.getElementById('sidebarEmail').textContent   = user.email;
+  document.getElementById('heroName').textContent       = `Hi, ${user.name.split(' ')[0]} 👋`;
+
+  // Populate profile form
+  document.getElementById('pName').value  = user.name  || '';
+  document.getElementById('pPhone').value = user.phone || '';
+  document.getElementById('pEmail').value = user.email || '';
+
+  loadBookings();
+}
+
+/* ── LOAD BOOKINGS ── */
+async function loadBookings() {
+  document.getElementById('bookingsList').innerHTML =
+    '<div style="text-align:center;padding:32px;color:#aaa;"><i class="fa fa-spinner fa-spin"></i> Loading…</div>';
+  const { ok, data } = await apiFetch('/bookings/my');
+  if (!ok) {
+    document.getElementById('bookingsList').innerHTML = `<p style="color:red;">${data.message}</p>`;
+    return;
+  }
+  allBookings = data.bookings || [];
+  renderBookings();
+}
+
+/* ── RENDER BOOKINGS ── */
+function renderBookings() {
+  const filter   = document.getElementById('bookingFilter').value;
+  const filtered = filter === 'all' ? allBookings : allBookings.filter(b => b.status === filter);
+
+  // Stats
+  const total     = allBookings.length;
+  const upcoming  = allBookings.filter(b => ['pending','confirmed'].includes(b.status)).length;
+  const completed = allBookings.filter(b => b.status === 'completed').length;
+  document.getElementById('bookingStats').innerHTML = `
+    <div class="acct-stat"><strong>${total}</strong><span>Total</span></div>
+    <div class="acct-stat"><strong>${upcoming}</strong><span>Upcoming</span></div>
+    <div class="acct-stat"><strong>${completed}</strong><span>Completed</span></div>
+  `;
+
+  if (!filtered.length) {
+    document.getElementById('bookingsList').innerHTML = `
+      <div class="empty-state">
+        <i class="fa fa-calendar-times"></i>
+        <p>${filter === 'all' ? 'No bookings yet.' : `No ${filter} bookings.`}</p>
+        <a href="Book.html" class="btn-g"><i class="fa fa-plus"></i> Book a Clean</a>
+      </div>`;
+    return;
+  }
+
+  const statusColors = {
+    pending:'status-pending', confirmed:'status-confirmed',
+    in_progress:'status-in_progress', completed:'status-completed', cancelled:'status-cancelled'
+  };
+
+  document.getElementById('bookingsList').innerHTML = filtered.map(b => `
+    <div class="booking-card">
+      <div class="booking-card-top">
+        <div>
+          <div class="booking-service">${b.service}</div>
+          <div class="booking-ref">Ref: ${b.booking_ref}</div>
+        </div>
+        <span class="status-pill ${statusColors[b.status] || ''}">${b.status.replace('_',' ')}</span>
+      </div>
+      <div class="booking-meta">
+        <span><i class="fa fa-calendar"></i> ${b.date}</span>
+        <span><i class="fa fa-clock"></i> ${b.time}</span>
+        ${b.area ? `<span><i class="fa fa-map-marker-alt"></i> ${b.area}</span>` : ''}
+        ${b.assigned_to ? `<span><i class="fa fa-user"></i> ${b.assigned_to}</span>` : ''}
+      </div>
+      ${b.notes ? `<div style="margin-top:10px;font-size:13px;color:#888;font-style:italic;">"${b.notes}"</div>` : ''}
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="https://wa.me/27713599995?text=Hi%20SaFi%20Njema!%20Regarding%20booking%20${b.booking_ref}" target="_blank"
+           style="font-size:13px;padding:6px 14px;background:#d1fae5;color:#065f46;border-radius:7px;text-decoration:none;font-weight:500;">
+          <i class="fab fa-whatsapp"></i> Enquire
+        </a>
+        ${['pending','confirmed'].includes(b.status) ? `
+          <button onclick="cancelBooking('${b.booking_ref}')"
+            style="font-size:13px;padding:6px 14px;background:#fee2e2;color:#991b1b;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-weight:500;">
+            <i class="fa fa-times"></i> Cancel
+          </button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+/* ── CANCEL BOOKING ── */
+async function cancelBooking(ref) {
+  if (!confirm(`Cancel booking ${ref}?\nThis cannot be undone.`)) return;
+  const { ok, data } = await apiFetch(`/bookings/${ref}/cancel`, { method: 'PUT' });
+  showToast(data.message, ok ? 'ok' : 'err');
+  if (ok) loadBookings();
+}
+
+/* ── PANEL SWITCHING ── */
+function showPanel(name, linkEl) {
+  document.querySelectorAll('.acct-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+  document.querySelectorAll('.acct-nav a').forEach(a => a.classList.remove('active'));
+  if (linkEl) linkEl.classList.add('active');
+}
+
+/* ── PROFILE FORM ── */
+document.getElementById('profileForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  const msg = document.getElementById('profileMsg');
+  btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving…';
+
+  const { ok, data } = await apiFetch('/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify({
+      name:  document.getElementById('pName').value.trim(),
+      phone: document.getElementById('pPhone').value.trim(),
+    })
+  });
+
+  btn.disabled = false; btn.innerHTML = '<i class="fa fa-save"></i> &nbsp;Save Profile';
+  if (ok) {
+    Auth.setUser(data.user);
+    document.getElementById('sidebarName').textContent = data.user.name;
+    msg.textContent = '✅ Profile updated successfully.'; msg.className = 'alert ok';
+    showToast('Profile saved!', 'ok');
+  } else {
+    msg.textContent = data.message; msg.className = 'alert err';
+  }
+});
+
+/* ── PASSWORD FORM ── */
+document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button[type="submit"]');
+  const msg = document.getElementById('passwordMsg');
+  const newPass     = document.getElementById('cpNew').value;
+  const confirmPass = document.getElementById('cpConfirm').value;
+
+  if (newPass !== confirmPass) {
+    msg.textContent = '⚠️ Passwords do not match.'; msg.className = 'alert err'; return;
+  }
+  if (newPass.length < 6) {
+    msg.textContent = '⚠️ Password must be at least 6 characters.'; msg.className = 'alert err'; return;
+  }
+
+  btn.disabled = true; btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Updating…';
+
+  const { ok, data } = await apiFetch('/auth/change-password', {
+    method: 'PUT',
+    body: JSON.stringify({
+      currentPassword: document.getElementById('cpCurrent').value,
+      newPassword:     newPass,
+    })
+  });
+
+  btn.disabled = false; btn.innerHTML = '<i class="fa fa-lock"></i> &nbsp;Update Password';
+  msg.textContent = ok ? '✅ Password changed successfully.' : `⚠️ ${data.message}`;
+  msg.className = `alert ${ok ? 'ok' : 'err'}`;
+  if (ok) { this.reset(); showToast('Password updated!', 'ok'); }
+});
+
+/* ── LOGOUT ── */
+function doLogout() {
+  Auth.clear();
+  showToast('Signed out.', 'info');
+  setTimeout(() => window.location.href = 'index.html', 600);
+}
+
+/* ── URL HASH TAB ── */
+const hash = window.location.hash.replace('#','');
+if (['bookings','profile','security'].includes(hash)) {
+  showPanel(hash, document.querySelector(`[onclick*="${hash}"]`));
+}
+
+init();
+</script>
+</body>
+</html>
