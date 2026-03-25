@@ -1,0 +1,49 @@
+# ─────────────────────────────────────────────────────────────
+#  Dockerfile – SaFi Njema Python Backend
+#  Build:  docker build -t safinjema-api .
+#  Run:    docker run -p 8000:8000 --env-file .env safinjema-api
+# ─────────────────────────────────────────────────────────────
+
+FROM python:3.11-slim
+
+# Metadata
+LABEL maintainer="SaFi Njema <safinjema@outlook.com>"
+LABEL description="SaFi Njema Cleaning Services – Python Backend API"
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python dependencies first (layer caching)
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt \
+    && pip install --no-cache-dir gunicorn
+
+# Copy application code
+COPY . .
+
+# Create data directory for SQLite
+RUN mkdir -p /app/data && chmod 777 /app/data
+
+# Non-root user for security
+RUN useradd -m -u 1001 appuser && chown -R appuser:appuser /app
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')" || exit 1
+
+EXPOSE 8000
+
+# Production: Gunicorn with Uvicorn workers
+CMD ["gunicorn", "main:app", \
+     "--workers", "4", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--bind", "0.0.0.0:8000", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-", \
+     "--timeout", "60"]
