@@ -346,8 +346,7 @@ function pickMattresses(el, label) {
   document.querySelectorAll('.mattresses-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 
-  state.mattressSize = label;   // ✅ exact label stored
-  state.seaters = null;         // optional: prevent conflict
+  state.mattressSize = n + ' mattress' + (n > 1 ? '' : '');
 }
 
 // ── STEP 3: Schedule ──
@@ -408,11 +407,9 @@ function validateStep4() {
 function buildSummary() {
   let extra = '';
 
-if (state.seaters) {
-  extra = ` (${state.seaters})`;
-} else if (state.mattressSize) {
-  extra = ` (${state.mattressSize})`;
-}
+  if (state.seaters) extra = ` (${state.seaters})`;
+  else if (state.mattressSize) extra = ` (${state.mattressSize})`;
+
   const rows = [
     ['Service Category', state.categoryLabel],
     ['Service', state.service + extra],
@@ -467,4 +464,472 @@ function submitBooking() {
 // ── RESET ──
 function resetForm() {
   location.reload(); // simplest and cleanest reset
+}
+/* ════════════════════════════════════════════════════════════
+   BOOKING FORM v2  |  Java.js — extended module
+   ════════════════════════════════════════════════════════════ */
+
+/* ── MEGA DROPDOWN ── */
+function toggleDD(id, e) {
+  if (e) e.preventDefault();
+  const el = document.getElementById(id);
+  if (!el) return;
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.has-dropdown.open').forEach(d => d.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.has-dropdown')) {
+    document.querySelectorAll('.has-dropdown.open').forEach(d => d.classList.remove('open'));
+  }
+});
+function preSelectCat(cat) {
+  const card = document.querySelector('.cat-card[data-cat="' + cat + '"]');
+  if (card) { pickCategory(card); }
+}
+
+/* ── SERVICE DATA ── */
+const SERVICE = {
+  cleaning: {
+    title: "Cleaning Services",
+    subtitle: "Select the type of cleaning you need.",
+    options: [
+      "Deep Cleaning","End of Tenancy Cleaning","Move In & Move Out Cleaning",
+      "Window Cleaning","Post Construction Cleaning","Post Renovation Cleaning",
+      "AirBnB Cleaning","Sanitary Bin","Laundry & Ironing","Indoor Cleaning","Outdoor Cleaning"
+    ]
+  },
+  carpet: {
+    title: "Carpet & Upholstery",
+    subtitle: "Select the item(s) you need cleaned.",
+    options: [
+      "Couches Cleaning","Carpet Cleaning","Rugs Cleaning",
+      "Mattress Cleaning","Chairs Cleaning","Stairs Carpet Cleaning"
+    ]
+  },
+  domestic: {
+    title: "Domestic",
+    subtitle: "Select your required role, category and employment type.",
+    options: []
+  },
+  moms: {
+    title: "Mom's Helper",
+    subtitle: "We're here to help busy households.",
+    options: ["Childcare Support","Meal Preparation","Laundry & Ironing","School Run Assistance","General Household Help"]
+  },
+  elder: {
+    title: "Elder Care",
+    subtitle: "Compassionate support for senior family members.",
+    options: ["Light Housekeeping","Companionship Visits","Meal Preparation","Personal Laundry","General Errands"]
+  },
+  pest: {
+    title: "Pest Control",
+    subtitle: "Safe and effective pest treatment.",
+    options: ["Cockroach Treatment","Ant & Crawling Insects","Rodent Control","Bed Bug Treatment","General Fumigation","Mosquito Treatment"]
+  }
+};
+
+const DOMESTIC_ROLES = {
+  nanny: [
+    "Live-in Nanny","Live-out Nanny","Maternity Nanny",
+    "Shared Nanny","Nanny-Governess","Specialised Nanny","Travel Nanny"
+  ],
+  maid: [
+    "Housekeeper","Maid","Lady's Maid","Laundress"
+  ],
+  hybrid: [
+    "Nanny-Housekeeper","Nanny-PA / Manager","Au Pair"
+  ]
+};
+
+/* ── STATE ── */
+let bkState = {
+  category: null, categoryLabel: null,
+  service: null, seaters: null, mattressSize: null,
+  domesticRoleCategory: null, domesticRole: null, employmentType: null,
+  date: null, time: null, frequency: 'Once-off',
+  address: null, city: null, postal: null, proptype: null,
+  sqft: null, bedrooms: 1, bathrooms: 1,
+  fname: null, lname: null, phone: null, email: null,
+  commMethods: [], source: null, notes: null,
+  photoNames: []
+};
+let bkStep = 1;
+let uploadedFiles = [];
+
+/* ── STEP NAVIGATION ── */
+function tryGoToStep(n) { if (n <= bkStep) goToStep(n); }
+
+function goToStep(n) {
+  if (n === 2 && bkState.category) buildServiceList(bkState.category);
+  bkStep = n;
+  [1,2,3,4,5,'success'].forEach(s => {
+    const el = document.getElementById('step-' + s);
+    if (el) el.classList.add('hidden');
+  });
+  const active = document.getElementById('step-' + n);
+  if (active) active.classList.remove('hidden');
+  updateStepper(n);
+  const bf = document.getElementById('booking-form');
+  if (bf) bf.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateStepper(n) {
+  const pct = {1:20,2:40,3:60,4:80,5:100};
+  const pf = document.getElementById('progress-fill');
+  if (pf) pf.style.width = (pct[n]||100) + '%';
+  for (let i = 1; i <= 5; i++) {
+    const ind = document.getElementById('step-indicator-' + i);
+    if (!ind) continue;
+    ind.classList.remove('active','done');
+    if (i < n) ind.classList.add('done');
+    else if (i === n) ind.classList.add('active');
+  }
+}
+
+/* ── STEP 1: CATEGORY ── */
+function pickCategory(el) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  bkState.category = el.dataset.cat;
+  bkState.categoryLabel = SERVICES[el.dataset.cat].title;
+  bkState.service = null; bkState.seaters = null; bkState.mattressSize = null;
+  bkState.domesticRole = null; bkState.domesticRoleCategory = null; bkState.employmentType = null;
+  const btn = document.getElementById('btn-to-2');
+  if (btn) btn.disabled = false;
+}
+
+/* ── STEP 2: SERVICE LIST ── */
+function buildServiceList(cat) {
+  const data = SERVICES[cat];
+  const t = document.getElementById('step2-title');
+  const s = document.getElementById('step2-sub');
+  if (t) t.textContent = data.title;
+  if (s) s.textContent = data.subtitle;
+
+  const list = document.getElementById('service-list');
+  list.innerHTML = '';
+
+  const dp = document.getElementById('domestic-panel');
+  const sw = document.getElementById('seater-wrap');
+  const mw = document.getElementById('mattresses-wrap');
+  if (dp) dp.classList.add('hidden');
+  if (sw) sw.classList.add('hidden');
+  if (mw) mw.classList.add('hidden');
+
+  const btn3 = document.getElementById('btn-to-3');
+  if (btn3) btn3.disabled = true;
+
+  if (cat === 'domestic') {
+    if (dp) dp.classList.remove('hidden');
+    return;
+  }
+
+  data.options.forEach(opt => {
+    const div = document.createElement('div');
+    div.className = 'service-opt';
+    div.innerHTML = '<div class="opt-dot"></div><span>' + opt + '</span>';
+    div.onclick = () => pickService(div, opt, cat);
+    list.appendChild(div);
+  });
+}
+
+function pickService(el, val, cat) {
+  document.querySelectorAll('.service-opt').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  bkState.service = val;
+  bkState.seaters = null; bkState.mattressSize = null;
+
+  const sw = document.getElementById('seater-wrap');
+  const mw = document.getElementById('mattresses-wrap');
+  if (val === 'Couches Cleaning') {
+    if (sw) sw.classList.remove('hidden');
+    if (mw) mw.classList.add('hidden');
+  } else if (val === 'Mattress Cleaning') {
+    if (mw) mw.classList.remove('hidden');
+    if (sw) sw.classList.add('hidden');
+  } else {
+    if (sw) sw.classList.add('hidden');
+    if (mw) mw.classList.add('hidden');
+  }
+
+  const btn3 = document.getElementById('btn-to-3');
+  if (btn3) btn3.disabled = false;
+}
+
+function pickSeater(el, n) {
+  document.querySelectorAll('.seater-wrap .pill-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  bkState.seaters = n + ' seater' + (n > 1 ? 's' : '');
+}
+
+function pickMattresses(el, label) {
+  document.querySelectorAll('.mattresses-wrap .pill-btn, #mattresses-wrap .pill-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  bkState.mattressSize = label;
+}
+
+/* ── DOMESTIC PANEL ── */
+function filterDomesticRoles(cat) {
+  bkState.domesticRoleCategory = cat;
+  const sel = document.getElementById('d-role-specific');
+  if (!sel) return;
+  sel.disabled = !cat;
+  sel.innerHTML = '<option value="">— Select role —</option>';
+  if (cat && DOMESTIC_ROLES[cat]) {
+    DOMESTIC_ROLES[cat].forEach(r => {
+      const o = document.createElement('option');
+      o.value = r; o.textContent = r;
+      sel.appendChild(o);
+    });
+  }
+  sel.onchange = function() {
+    bkState.domesticRole = this.value;
+    checkDomesticComplete();
+  };
+}
+
+function pickEmployment(el, val) {
+  document.querySelectorAll('#employment-type .pill-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  bkState.employmentType = val;
+  checkDomesticComplete();
+}
+
+function checkDomesticComplete() {
+  const btn3 = document.getElementById('btn-to-3');
+  if (!btn3) return;
+  const roleEl = document.getElementById('d-role-specific');
+  const hasRole = roleEl && roleEl.value;
+  const hasEmp = bkState.employmentType;
+  btn3.disabled = !(hasRole && hasEmp);
+  if (hasRole && hasEmp) {
+    bkState.service = 'Domestic: ' + roleEl.value;
+  }
+}
+
+/* ── STEP 3 ── */
+(function initDateField() {
+  const df = document.getElementById('f-date');
+  if (df) { df.min = new Date().toISOString().split('T')[0]; df.value = df.min; }
+})();
+
+function pickFreq(el, val) {
+  document.querySelectorAll('.freq-opt').forEach(f => f.classList.remove('selected'));
+  el.classList.add('selected');
+  bkState.frequency = val;
+}
+
+function changeCounter(field, delta) {
+  bkState[field] = Math.min(10, Math.max(1, (bkState[field] || 1) + delta));
+  const el = document.getElementById(field + '-val');
+  if (el) el.textContent = bkState[field];
+}
+
+function validateStep3() {
+  const date = (document.getElementById('f-date')||{}).value;
+  const time = (document.getElementById('f-time')||{}).value;
+  const addr = ((document.getElementById('f-address')||{}).value||'').trim();
+  const city = ((document.getElementById('f-city')||{}).value||'').trim();
+  if (!date || !time || !addr || !city) {
+    alert('Please fill in Date, Time, Street Address and City.');
+    return;
+  }
+  bkState.date = date; bkState.time = time;
+  bkState.address = addr; bkState.city = city;
+  bkState.postal = ((document.getElementById('f-postal')||{}).value||'').trim();
+  bkState.proptype = (document.getElementById('f-proptype')||{}).value || '';
+  bkState.sqft = ((document.getElementById('f-sqft')||{}).value||'').trim();
+  bkStep = 3;
+  goToStep(4);
+}
+
+/* ── STEP 4 ── */
+function toggleComm(el) {
+  const val = el.dataset.comm;
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    if (!bkState.commMethods.includes(val)) bkState.commMethods.push(val);
+  } else {
+    bkState.commMethods = bkState.commMethods.filter(m => m !== val);
+  }
+}
+
+function validateStep4() {
+  const fname = ((document.getElementById('f-fname')||{}).value||'').trim();
+  const lname = ((document.getElementById('f-lname')||{}).value||'').trim();
+  const phone = ((document.getElementById('f-phone')||{}).value||'').trim();
+  if (!fname || !lname || !phone) { alert('Please fill in First Name, Last Name and Phone Number.'); return; }
+  if (bkState.commMethods.length === 0) { alert('Please select at least one preferred communication method.'); return; }
+  bkState.fname = fname; bkState.lname = lname; bkState.phone = phone;
+  bkState.email = ((document.getElementById('f-email')||{}).value||'').trim();
+  bkState.source = (document.getElementById('f-source')||{}).value || '';
+  bkState.notes = ((document.getElementById('f-notes')||{}).value||'').trim();
+  buildSummary();
+  bkStep = 4;
+  goToStep(5);
+}
+
+/* ── STEP 5: SUMMARY ── */
+function buildSummary() {
+  let extra = '';
+  if (bkState.seaters) extra = ' (' + bkState.seaters + ')';
+  else if (bkState.mattressSize) extra = ' (' + bkState.mattressSize + ')';
+
+  const serviceStr = bkState.service
+    ? bkState.service + extra
+    : '—';
+
+  const empStr = bkState.employmentType
+    ? bkState.employmentType
+    : '';
+
+  const groups = [
+    {
+      head: '🧹 Service',
+      rows: [
+        ['Category', bkState.categoryLabel || '—'],
+        ['Service', serviceStr],
+        ...(bkState.employmentType ? [['Employment', empStr]] : [])
+      ]
+    },
+    {
+      head: '📅 Schedule',
+      rows: [
+        ['Date', fmtDate(bkState.date)],
+        ['Time', fmtTime(bkState.time)],
+        ['Frequency', bkState.frequency || '—']
+      ]
+    },
+    {
+      head: '📍 Property',
+      rows: [
+        ['Address', [bkState.address, bkState.city, bkState.postal].filter(Boolean).join(', ') || '—'],
+        ['Property type', bkState.proptype || '—'],
+        ['Size', bkState.sqft ? bkState.sqft + ' m²' : '—'],
+        ['Bedrooms', bkState.bedrooms + ' bedroom(s)'],
+        ['Bathrooms', bkState.bathrooms + ' bathroom(s)']
+      ]
+    },
+    {
+      head: '👤 Contact',
+      rows: [
+        ['Full name', (bkState.fname + ' ' + bkState.lname).trim() || '—'],
+        ['Phone', bkState.phone || '—'],
+        ['Email', bkState.email || '—'],
+        ['Communication', bkState.commMethods.length ? bkState.commMethods.join(', ') : '—'],
+        ['Photos', uploadedFiles.length ? uploadedFiles.length + ' file(s)' : 'None'],
+        ['Notes', bkState.notes || '—']
+      ]
+    }
+  ];
+
+  const sb = document.getElementById('summary-block');
+  if (!sb) return;
+  sb.innerHTML = groups.map(g =>
+    '<div class="summary-section-head">' + g.head + '</div>' +
+    g.rows.map(([k,v]) =>
+      '<div class="summary-row">' +
+        '<span class="summary-key">' + k + '</span>' +
+        '<span class="summary-val">' + v + '</span>' +
+      '</div>'
+    ).join('')
+  ).join('');
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const p = d.split('-');
+  return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : '—';
+}
+function fmtTime(t) {
+  if (!t) return '—';
+  const [h,m] = t.split(':');
+  const hr = parseInt(h);
+  if (isNaN(hr)) return '—';
+  return (hr > 12 ? hr-12 : hr) + ':' + m + ' ' + (hr >= 12 ? 'PM' : 'AM');
+}
+
+/* ── SUBMIT ── */
+function submitBooking() {
+  const ref = 'SFN-' + Math.floor(100000 + Math.random() * 900000);
+  const el = document.getElementById('ref-num');
+  if (el) el.textContent = 'Ref: ' + ref;
+  document.querySelectorAll('.bk-card').forEach(c => c.classList.add('hidden'));
+  const suc = document.getElementById('step-success');
+  if (suc) suc.classList.remove('hidden');
+  const pf = document.getElementById('progress-fill');
+  if (pf) pf.style.width = '100%';
+  document.querySelectorAll('.step-item').forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('done');
+  });
+  const bf = document.getElementById('booking-form');
+  if (bf) bf.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetForm() { location.reload(); }
+
+/* ── PHOTO UPLOAD ── */
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag-active');
+}
+function handleDragLeave(e) {
+  document.getElementById('upload-zone').classList.remove('drag-active');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-active');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  addFiles(files);
+}
+function handleFileSelect(e) { addFiles(Array.from(e.target.files)); }
+
+function addFiles(files) {
+  const remaining = 10 - uploadedFiles.length;
+  files.slice(0, remaining).forEach(file => {
+    if (file.size > 5 * 1024 * 1024) { alert('"' + file.name + '" exceeds 5 MB and was skipped.'); return; }
+    const idx = uploadedFiles.length;
+    uploadedFiles.push(file);
+    bkState.photoNames.push(file.name);
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const previews = document.getElementById('upload-previews');
+      if (!previews) return;
+      const thumb = document.createElement('div');
+      thumb.className = 'preview-thumb'; thumb.id = 'thumb-' + idx;
+      thumb.innerHTML = '<img src="' + ev.target.result + '" alt="' + file.name + '">' +
+        '<button class="preview-remove" onclick="removeFile(' + idx + ',event)">✕</button>';
+      previews.appendChild(thumb);
+      refreshUploadUI();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeFile(idx, e) {
+  e.stopPropagation();
+  uploadedFiles.splice(idx, 1);
+  bkState.photoNames.splice(idx, 1);
+  const t = document.getElementById('thumb-' + idx);
+  if (t) t.remove();
+  document.querySelectorAll('.preview-thumb').forEach((el, i) => {
+    el.id = 'thumb-' + i;
+    const btn = el.querySelector('.preview-remove');
+    if (btn) btn.setAttribute('onclick', 'removeFile(' + i + ',event)');
+  });
+  refreshUploadUI();
+}
+
+function refreshUploadUI() {
+  const ph = document.getElementById('upload-placeholder');
+  const cnt = document.getElementById('upload-count');
+  if (uploadedFiles.length > 0) {
+    if (ph) ph.style.display = 'none';
+    if (cnt) { cnt.style.display = 'block'; cnt.textContent = uploadedFiles.length + ' photo' + (uploadedFiles.length > 1 ? 's' : '') + ' selected — click to add more'; }
+  } else {
+    if (ph) ph.style.display = '';
+    if (cnt) cnt.style.display = 'none';
+  }
 }

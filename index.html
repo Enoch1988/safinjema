@@ -16,22 +16,41 @@
 
 <!-- NAVBAR -->
 <nav class="navbar">
-  <div class="logo"><a href="index.html"><img src="image/SaFiSkoon logo design.png" alt="SaFi Njema Logo"></a></div>
+  <div class="logo"><a href="index.html"><img src="image/SaFiSkoon logo design.png" alt="SaFiSkoon"></a></div>
   <ul class="nav-links" id="navLinks">
-    <li><a href="index.html" class="active">Home</a></li>
-    <li><a href="services.html">Services</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li class="has-dropdown" id="dd-services">
+      <a href="services.html" onclick="toggleDD('dd-services',event)">Services <i class="fa fa-chevron-down nav-chevron"></i></a>
+      <div class="mega-drop">
+        <div class="mega-col">
+          <div class="mega-head"><i class="fa fa-spray-can-sparkles"></i> Specialist Cleaning</div>
+          <a href="Book.html?cat=cleaning" class="mega-link" onclick="preSelectCat('cleaning')"><span></span> Cleaning Services</a>
+          <a href="Book.html?cat=carpet" class="mega-link" onclick="preSelectCat('carpet')"><span></span> Carpet &amp; Upholstery</a>
+        </div>
+        <div class="mega-col">
+          <div class="mega-head"><i class="fa fa-house-heart"></i> Home Care</div>
+          <a href="Book.html?cat=domestic" class="mega-link" onclick="preSelectCat('domestic')"><span></span> Domestic</a>
+          <a href="Book.html?cat=moms" class="mega-link" onclick="preSelectCat('moms')"><span></span> Mom's Helper</a>
+          <a href="Book.html?cat=elder" class="mega-link" onclick="preSelectCat('elder')"><span></span> Elder Care</a>
+          <a href="Book.html?cat=pest" class="mega-link" onclick="preSelectCat('pest')"><span></span> Pest Control</a>
+        </div>
+        <div class="mega-col">
+          <div class="mega-head"><i class="fa fa-bolt"></i> Book Fast</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5;">Confirmation in 30 minutes. Vetted professionals. Eco-safe products.</p>
+          <a href="Book.html" class="btn-p" style="font-size:13px;padding:9px 22px;border-radius:50px;display:inline-flex;align-items:center;gap:6px;">
+            <i class="fa fa-calendar-check"></i> Book Now
+          </a>
+        </div>
+      </div>
+    </li>
     <li><a href="About.html">About</a></li>
     <li><a href="Galary.html">Gallery</a></li>
     <li><a href="contact.html">Contact</a></li>
   </ul>
-  <div class="search-bar">
-    <input type="text" id="sSearch" placeholder="Search services…">
-    <button onclick="doSearch()"><i class="fa fa-search"></i></button>
-  </div>
   <div class="nav-actions">
     <a href="login.html" class="nav-auth">Login</a>
     <a href="register.html" class="nav-auth reg">Register</a>
-    <a href="Book.html" class="book-btn"><i class="fa fa-calendar-check"></i> Express Services</a>
+    <a href="Book.html" class="book-btn active"><i class="fa fa-calendar-check"></i> Book Now</a>
   </div>
   <button class="hamburger" onclick="toggleMenu()"><i class="fa fa-bars"></i></button>
 </nav>
