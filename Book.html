@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Book a Cleaning | SaFi Njema</title>
+<title>Book a Cleaning | SaFiSkoon</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="style.css">
@@ -11,7 +11,7 @@
 <body>
 <div class="top-bar">🌿 Eco-Friendly Cleaning Solutions &nbsp;|&nbsp; <a href="tel:+27713599995">+27 71 359 9995</a></div>
 <nav class="navbar">
-  <div class="logo"><a href="index.html"><img src="image/Safi Njema logo No Background.png" alt="SaFi Njema"></a></div>
+  <div class="logo"><a href="index.html"><img src="image/SaFiSkoon logo design.png" alt="SaFi Njema"></a></div>
   <ul class="nav-links" id="navLinks">
     <li><a href="index.html">Home</a></li><li><a href="services.html">Services</a></li>
     <li><a href="About.html">About</a></li><li><a href="Galary.html">Gallery</a></li><li><a href="contact.html">Contact</a></li>
@@ -49,75 +49,308 @@
       
     </div>
 
-    <div class="form-card reveal">
-      <h2 style="font-family:var(--fd);font-size:1.6rem;margin-bottom:6px;">Booking Request</h2>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">* Required fields. You'll receive an email & WhatsApp confirmation.</p>
-      <form id="bookingForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Full Name *</label>
-            <input type="text" id="bName" placeholder="Jane Smith" required>
-          </div>
-          <div class="form-group">
-            <label>Phone Number *</label>
-            <input type="tel" id="bPhone" placeholder="+27 71 000 0000" required>
-          </div>
-          <div class="form-group">
-            <label>Email Address *</label>
-            <input type="email" id="bEmail" placeholder="jane@example.com" required>
-          </div>
-          <div class="form-group">
-            <label>Service Required *</label>
-            <select id="bService" required>
-              <option value="">— Select a service —</option>
-              <option>Carpet Cleaning</option>
-              <option>Couch / Upholstery Cleaning</option>
-              <option>Mattress Cleaning</option>
-              <option>Window Cleaning</option>
-              <option>Deep Home Cleaning</option>
-              <option>Post-Construction Cleaning</option>
-              <option>Commercial / Office Cleaning</option>
-              <option>Industrial Cleaning</option>
-              <option>Events Cleaning</option>
-              <option>Pest Control</option>
-              <option>Solar Panel Cleaning</option>
-              <option>Bin Cleaning</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Preferred Date *</label>
-            <input type="date" id="bDate" required>
-          </div>
-          <div class="form-group">
-            <label>Preferred Time *</label>
-            <select id="bTime" required>
-              <option value="">— Select time —</option>
-              <option>7:00 AM</option><option>8:00 AM</option><option>9:00 AM</option>
-              <option>10:00 AM</option><option>11:00 AM</option><option>12:00 PM</option>
-              <option>1:00 PM</option><option>2:00 PM</option><option>3:00 PM</option>
-              <option>4:00 PM</option><option>5:00 PM</option>
-            </select>
-          </div>
-          <div class="form-group form-full">
-            <label>Area / Suburb</label>
-            <input type="text" id="bArea" placeholder="e.g. Claremont, Cape Town">
-          </div>
-          <div class="form-group form-full">
-            <label>Special Instructions</label>
-            <textarea id="bNotes" placeholder="Any access instructions, allergies, or specific requirements…"></textarea>
-          </div>
+    <!-- HERO -->
+<div class="hero">
+  <p>Professional, reliable &amp; trusted services across the country</p>
+</div>
+
+<!-- BOOKING FORM -->
+<div class="booking-wrapper" id="booking-form">
+
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="step-item active" id="step-indicator-1" onclick="goToStep(1)">
+      <div class="step-num">1</div>
+      <span class="step-label">Category</span>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item" id="step-indicator-2" onclick="goToStep(2)">
+      <div class="step-num">2</div>
+      <span class="step-label">Service</span>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item" id="step-indicator-3" onclick="goToStep(3)">
+      <div class="step-num">3</div>
+      <span class="step-label">Schedule</span>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item" id="step-indicator-4" onclick="goToStep(4)">
+      <div class="step-num">4</div>
+      <span class="step-label">Details</span>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step-item" id="step-indicator-5">
+      <div class="step-num">5</div>
+      <span class="step-label">Confirm</span>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:20%"></div></div>
+
+  <!-- ── STEP 1: Category ── -->
+  <div class="card" id="step-1">
+    <div class="tag">Step 1 of 5</div>
+    <h2>What service do you need?</h2>
+    <p class="subtitle">Choose a category to get started with your booking.</p>
+  
+    <div class="category-grid" id="cat-grid">
+  
+      <div class="cat-card" data-cat="cleaning" onclick="pickCategory(this)">
+        <span class="cat-icon" style="width:60px; height:60px; margin:0 auto 10px; border-radius:50%; background:#f5f7fa; display:flex; align-items:center; justify-content:center;">
+          <img src="image/Cleaning Services.png" alt="cleaning services" style="width:30px; height:30px;">
+        </span>
+        <div class="cat-name">Cleaning Services</div>
+        <div class="cat-desc">Deep clean, end of tenancy & more</div>
+      </div>
+  
+      <div class="cat-card" data-cat="carpet" onclick="pickCategory(this)">
+        <span class="cat-icon" style="width:60px; height:60px; margin:0 auto 10px; border-radius:50%; background:#f5f7fa; display:flex; align-items:center; justify-content:center;">
+          <img src="image/sofa.png" alt="Upholstery" style="width:30px; height:30px;">
+        </span>
+        <div class="cat-name">Carpet & Upholstery</div>
+        <div class="cat-desc">Couches, carpets, rugs & mattresses</div>
+      </div>
+  
+      <div class="cat-card" data-cat="domestic" onclick="pickCategory(this)">
+        <span class="cat-icon" style="width:60px; height:60px; margin:0 auto 10px; border-radius:50%; background:#f5f7fa; display:flex; align-items:center; justify-content:center;">
+          <img src="image/housekeeping.png" alt="maid" style="width:30px; height:30px;">
+        </span>
+        <div class="cat-name">Domestic</div>
+        <div class="cat-desc">Regular household cleaning</div>
+      </div>
+  
+      <div class="cat-card" data-cat="moms" onclick="pickCategory(this)">
+        <span class="cat-icon" style="width:60px; height:60px; margin:0 auto 10px; border-radius:50%; background:#f5f7fa; display:flex; align-items:center; justify-content:center;">
+          <img src="image/mom's helper .png" alt="moms helper" style="width:30px; height:30px;">
+        </span>
+        <div class="cat-name">Mom's Helper</div>
+        <div class="cat-desc">Support for busy households</div>
+      </div>
+  
+      <div class="cat-card" data-cat="elder" onclick="pickCategory(this)">
+        <span class="cat-icon" style="width:60px; height:60px; margin:0 auto 10px; border-radius:50%; background:#f5f7fa; display:flex; align-items:center; justify-content:center;">
+          <img src="image/elderly1.png" alt="elderly" style="width:30px; height:30px;">
+        </span>
+        <div class="cat-name">Elder Care</div>
+        <div class="cat-desc">Compassionate home support</div>
+      </div>
+  
+      <div class="cat-card" data-cat="pest" onclick="pickCategory(this)">
+        <span class="cat-icon" style="width:60px; height:60px; margin:0 auto 10px; border-radius:50%; background:#f5f7fa; display:flex; align-items:center; justify-content:center;">
+          <img src="image/pest-control.png" alt="pest control" style="width:30px; height:30px;">
+        </span>
+        <div class="cat-name">Pest Control</div>
+        <div class="cat-desc">Safe, effective treatment</div>
+      </div>
+  
+    </div>
+  
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-to-2" disabled onclick="goToStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Service ── -->
+  <div class="card hidden" id="step-2">
+    <div class="tag">Step 2 of 5</div>
+    <h2 id="step2-title">Choose your service</h2>
+    <p class="subtitle" id="step2-sub">Select the specific service you require.</p>
+    <div class="service-list" id="service-list"></div>
+
+    <!-- Couch seater widget -->
+    <div class="seater-wrap" id="seater-wrap">
+      <label>Select number of seaters</label>
+      <div class="seater-btns">
+        <button class="seater-btn" onclick="pickSeater(this, 1)">1 seater</button>
+        <button class="seater-btn" onclick="pickSeater(this, 2)">2 seaters</button>
+        <button class="seater-btn" onclick="pickSeater(this, 3)">3 seaters</button>
+        <button class="seater-btn" onclick="pickSeater(this, 4)">4 seaters</button>
+        <button class="seater-btn" onclick="pickSeater(this, 5)">5 seaters</button>
+      </div>
+    </div>
+
+    <!-- Mattresses widget -->
+    <div class="mattresses-wrap" id="mattresses-wrap">
+      <label>Select mattresses size</label>
+      <div class="mattresses-btns">
+        <button class="mattresses-btn" onclick="pickMattresses(this, 'Single Mattress')">Single Mattress</button>
+        <button class="mattresses-btn" onclick="pickMattresses(this, '3/4 Mattress')">3/4 Mattress</button>
+        <button class="mattresses-btn" onclick="pickMattresses(this, 'Double Mattress')">Double Mattress</button>
+        <button class="mattresses-btn" onclick="pickMattresses(this, 'Queen Mattress')">Queen Mattress</button>
+        <button class="mattresses-btn" onclick="pickMattresses(this, 'King Mattress')">King Mattress</button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+      <button class="btn btn-primary" id="btn-to-3" disabled onclick="goToStep(3)">Continue →</button>
+    </div> 
+  </div>
+
+  <!-- ── STEP 3: Schedule ── -->
+  <div class="card hidden" id="step-3">
+    <div class="tag">Step 3 of 5</div>
+    <h2>When &amp; where?</h2>
+    <p class="subtitle">Pick your preferred date, time and property address.</p>
+
+    <div class="form-grid">
+      <div class="field-group">
+        <label class="field-label">Preferred date <span>*</span></label>
+        <input type="date" id="f-date" min="">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Preferred time <span>*</span></label>
+        <input type="time" id="f-time" value="08:00">
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom:1.2rem">
+      <label class="field-label">Service frequency</label>
+      <div class="frequency-grid">
+        <div class="freq-opt selected" onclick="pickFreq(this,'Once-off')">
+          <strong>Once-off</strong><small>Single visit</small>
         </div>
-        <button type="submit" class="form-submit"><i class="fa fa-calendar-check"></i> &nbsp;Confirm Booking Request</button>
-        <div class="alert" id="bookMsg"></div>
-      </form>
+        <div class="freq-opt" onclick="pickFreq(this,'Weekly')">
+          <strong>Weekly</strong><small>Every week</small>
+        </div>
+        <div class="freq-opt" onclick="pickFreq(this,'Bi-weekly')">
+          <strong>Bi-weekly</strong><small>Every 2 weeks</small>
+        </div>
+        <div class="freq-opt" onclick="pickFreq(this,'Monthly')">
+          <strong>Monthly</strong><small>Once a month</small>
+        </div>
+        <div class="freq-opt" onclick="pickFreq(this,'Custom')">
+          <strong>Custom</strong><small>Set schedule</small>
+        </div>
+        <div class="freq-opt" onclick="pickFreq(this,'To be discussed')">
+          <strong>Discuss</strong><small>Let's arrange</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="field-group full">
+        <label class="field-label">Street address <span>*</span></label>
+        <input type="text" id="f-address" placeholder="12 Rose Avenue, Suburb">
+      </div>
+      <div class="field-group">
+        <label class="field-label">City <span>*</span></label>
+        <input type="text" id="f-city" placeholder="Cape Town">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Postal code</label>
+        <input type="text" id="f-postal" placeholder="8001">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Property type</label>
+      <select id="f-proptype">
+        <option value="">— Select —</option>
+        <option>Apartment / Flat</option>
+        <option>House</option>
+        <option>Office / Commercial</option>
+        <option>AirBnB / Short-term rental</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="validateStep3()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Contact Details ── -->
+  <div class="card hidden" id="step-4">
+    <div class="tag">Step 4 of 5</div>
+    <h2>Your details</h2>
+    <p class="subtitle">We'll use these to confirm your booking and get in touch.</p>
+
+    <div class="form-grid">
+      <div class="field-group">
+        <label class="field-label">First name <span>*</span></label>
+        <input type="text" id="f-fname" placeholder="Amara">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Last name <span>*</span></label>
+        <input type="text" id="f-lname" placeholder="Nkosi">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Phone number <span>*</span></label>
+        <input type="tel" id="f-phone" placeholder="071 234 5678">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Email address</label>
+        <input type="email" id="f-email" placeholder="amara@email.com">
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-bottom:1.2rem">
+      <label class="field-label">How did you hear about us?</label>
+      <select id="f-source">
+        <option value="">— Select —</option>
+        <option>Google Search</option>
+        <option>Social Media</option>
+        <option>Word of mouth / Referral</option>
+        <option>Flyer / Pamphlet</option>
+        <option>WhatsApp</option>
+        <option>Other</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Special instructions or notes</label>
+      <textarea id="f-notes" placeholder="e.g. Gate code, pets on premises, specific areas to focus on…"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+      <button class="btn btn-primary" onclick="validateStep4()">Review Booking →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Confirm ── -->
+  <div class="card hidden" id="step-5">
+    <div class="tag">Step 5 of 5</div>
+    <h2>Review &amp; confirm</h2>
+    <p class="subtitle">Please check your details before submitting.</p>
+
+    <div id="summary-block" style="margin-bottom:1.5rem;"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep(4)">← Edit</button>
+      <button class="btn btn-primary" onclick="submitBooking()">✓ Confirm Booking</button>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ── -->
+  <div class="card hidden" id="step-success">
+    <div class="success-box">
+      <div class="success-icon">✓</div>
+      <h2>Booking Received!</h2>
+      <div class="ref-badge" id="ref-num">Ref: SFN-000000</div>
+      <p>Thank you for booking with <strong>SaFiNjema</strong>. We'll confirm your appointment via phone or WhatsApp within 2 hours.</p>
+      <div class="btn-row" style="justify-content:center; margin-top:1.5rem;">
+        <button class="btn btn-primary" onclick="resetForm()">Make another booking</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end booking-wrapper -->
+
+
+
     </div>
   </div>
 </section>
 
+<!-----FOOTER------>
+
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
-      <img src="image/Safi Njema logo No Background.png" class="footer-logo" alt="SaFi Njema">
+      <img src="image/SaFiSkoon logo design.png" class="footer-logo" alt="SaFi Njema">
       <p>Eco-friendly professional cleaning for homes, offices and industries across Cape Town.</p>
       <div class="social-icons">
         <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -141,7 +374,7 @@
       </div>
     </div>
   </div>
-  <div class="footer-bottom"><span>© 2026 SaFi Njema Cleaning Services</span><span>Eco-Friendly Cleaning Solutions 🌿</span></div>
+  <div class="footer-bottom"><span>© 2026 SaFiSkoon Cleaning Services</span><span>Eco-Friendly Cleaning Solutions 🌿</span></div>
 </footer>
 <a href="https://wa.me/27713599995" class="wa-float" target="_blank"><i class="fab fa-whatsapp"></i></a>
 <script src="Java.js"></script>
